@@ -126,8 +126,8 @@ std::string cpu_load() {
     // size_t previos_idle_time = 0, previos_total_time = 0;
 
     auto tmp = get_cpu_times();
-    // float percentage = 100 * (1.0 - (float)tmp[0] / (float)tmp[1]);
-    float percentage = ((float)tmp[0] - (float)tmp[1]) / (float)tmp[1];
+    float percentage = 100 * (1.0 - (float)tmp[0] / (float)tmp[1]);
+    // float percentage = ((float)tmp[0] - (float)tmp[1]) / (float)tmp[1];
 
     std::string result = std::to_string(percentage);
 
@@ -143,8 +143,6 @@ std::string cpu_load() {
 std::string http_response(std::string text) {
     std::string result = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ";
     result += std::to_string(text.size()) + "\r\n\r\n" + text;
-
-    // std::cout << result << std::endl;
 
     return result;
 }

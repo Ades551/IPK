@@ -6,10 +6,10 @@
  *
  */
 
-#include <arpa/inet.h>
-#include <ctype.h>
+#include <arpa/inet.h>  // inet_ntoa
+#include <ctype.h>      // isdigit
 #include <netinet/in.h>
-#include <signal.h>
+//#include <signal.h>
 #include <sys/socket.h>
 #include <unistd.h>
 
@@ -23,11 +23,7 @@ bool str_is_number(std::string &str);
 void signal_handler(int signal_num);
 
 int main(int argc, char **argv) {
-    signal(SIGINT, signal_handler);
-
-    // char hostname[256];
-    // gethostname(hostname, 255);
-    // std::cout << hostname << std::endl;
+    // signal(SIGINT, signal_handler);
 
     if (argc != 2) {
         error_msg(1, "Invalid number of arguments!");
@@ -100,6 +96,6 @@ bool str_is_number(std::string &str) {
     return true;
 }
 
-void signal_handler(int signal_num) {
-    exit(signal_num);
-}
+// void signal_handler(int signal_num) {
+//     exit(signal_num);
+// }
