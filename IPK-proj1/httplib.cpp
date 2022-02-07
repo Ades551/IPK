@@ -8,7 +8,7 @@
 
 #include "httplib.hpp"
 
-#include <iostream>
+//#include <iostream>
 
 /**
  * @brief Split function
@@ -82,11 +82,6 @@ std::string get_hostname() {
 
     gethostname(hostname, 255);
 
-    // for (int i = 0; hostname[i] != '\0'; i++)
-    //     result += hostname[i];
-
-    // std::cout << result << std::endl;
-
     return std::string(hostname);
 }
 
@@ -107,7 +102,8 @@ std::vector<size_t> get_cpu_times() {
     for (size_t time; file >> time; cpu_times.push_back(time))
         ;
 
-    result.push_back(cpu_times[3]);  // idle time
+    /// CHANGE: cpu_times[4]
+    result.push_back(cpu_times[3] + cpu_times[4]);  // idle time
 
     // sum all cpu times (total time)
     for (int i = 0; i < cpu_times.size(); i++) total_time += cpu_times[i];
@@ -126,12 +122,10 @@ std::string cpu_load() {
     // size_t previos_idle_time = 0, previos_total_time = 0;
 
     auto tmp = get_cpu_times();
-    float percentage = 100 * (1.0 - (float)tmp[0] / (float)tmp[1]);
-    // float percentage = ((float)tmp[0] - (float)tmp[1]) / (float)tmp[1];
+    // float percentage = 100 * (1.0 - (float)tmp[0] / (float)tmp[1]);
+    float percentage = ((float)tmp[0] - (float)tmp[1]) / (float)tmp[1];
 
-    std::string result = std::to_string(percentage);
-
-    return result;
+    return std::to_string(percentage);
 }
 
 /**
@@ -166,5 +160,5 @@ std::string http_analyse(std::string recv) {
         return http_response(cpu_load());
     }
 
-    return "HTTP/1.1 500 Internal Server Error\r\n\r\n";
+    return "HTTP/1.1 400 Bad Request\r\n\r\n";
 }
