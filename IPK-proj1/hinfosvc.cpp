@@ -6,25 +6,20 @@
  *
  */
 
-#include <arpa/inet.h>  // inet_ntoa
-#include <ctype.h>      // isdigit
-#include <netinet/in.h>
-//#include <signal.h>
-#include <sys/socket.h>
-#include <unistd.h>
+#include <arpa/inet.h>   // inet_ntoa
+#include <ctype.h>       // isdigit
+#include <netinet/in.h>  // htons
+#include <sys/socket.h>  // socket, setsockopt, bind, listen
+#include <unistd.h>      // read, close
 
-#include <iostream>
 #include <string>
 
 #include "error.hpp"
 #include "httplib.hpp"
 
 bool str_is_number(std::string &str);
-void signal_handler(int signal_num);
 
 int main(int argc, char **argv) {
-    // signal(SIGINT, signal_handler);
-
     if (argc != 2) {
         error_msg(1, "Invalid number of arguments!");
     }
@@ -54,31 +49,25 @@ int main(int argc, char **argv) {
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) error_msg(1, "Socket creation!");
 
     // set socket options
-    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option)) < 0) error_msg(1, "Socket options!");
+    if (setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR | SO_REUSEPORT, &option, sizeof(option)) < 0) error_msg(1, "Setting socket options!");
 
     // bind server
-    if (bind(server_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) error_msg(1, "Server bind!");
+    if (bind(server_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) error_msg(1, "For server to bind!");
 
     // losten to port
-    if (listen(server_fd, 1) < 0) error_msg(1, "Listen to incomming connections!");
+    if (listen(server_fd, 1) < 0) error_msg(1, "Listening to incomming connections!");
 
     while (true) {
+        // accept incomming connections
         new_socket = accept(server_fd, (struct sockaddr *)&client_addr, &addrlen);
 
-        if (new_socket < 0) {
-            error_msg(1, "Accept failed!");
-        } else {
-            printf("server: got connection from %s port %d\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-        }
+        // check if connection was accepted
+        if (new_socket < 0) error_msg(1, "Socket accept failed!");
 
-        if (read(new_socket, buffer, 255) < 0) error_msg(1, "Read!");
+        // read socket message
+        if (read(new_socket, buffer, 255) < 0) error_msg(1, "Socket read failed!");
 
-        std::string response = http_analyse(std::string(buffer, 255));
-        if (response.empty()) error_msg(1, "Response failed!");
-
-        // printf("client request:\n%s\n", buffer);
-        // const char *resp = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: 12\r\n\r\nHello world!";
-
+        std::string response = http_analyse(std::string(buffer));
         send(new_socket, response.c_str(), response.size(), 0);
 
         close(new_socket);
@@ -95,7 +84,3 @@ bool str_is_number(std::string &str) {
 
     return true;
 }
-
-// void signal_handler(int signal_num) {
-//     exit(signal_num);
-// }
