@@ -110,7 +110,7 @@ std::vector<size_t> get_cpu_times() {
     result.push_back(cpu_times[3] + cpu_times[4]);  // idle_time + io_wait
 
     // sum all cpu times (total time)
-    for (int i = 0; i < cpu_times.size(); i++) total_time += cpu_times[i];
+    for (int i = 0; i < (int)cpu_times.size(); i++) total_time += cpu_times[i];
 
     result.push_back(total_time);
 
@@ -123,10 +123,18 @@ std::vector<size_t> get_cpu_times() {
  * @return std::string load in percentage
  */
 std::string cpu_load() {
-    auto tmp = get_cpu_times();
+    // https://stackoverflow.com/questions/23367857/accurate-calculation-of-cpu-usage-given-in-percentage-in-linux
+    auto prev = get_cpu_times();
+    sleep(1);
+    auto act = get_cpu_times();
 
-    // 100 * (total_time - idle_time) / total_time
-    float percentage = 100 * ((float)tmp[1] - (float)tmp[0]) / (float)tmp[1];
+    // actual_total - prev_total
+    auto totald = act[1] - prev[1];
+    // actual_idle - prev_idle
+    auto idled = act[0] - prev[0];
+
+    // (100 * (total_time - idle_time)) / total_time
+    float percentage = (100.0 * (totald - idled)) / totald;
 
     return std::to_string((int)std::round(percentage)) + "%";
 }
@@ -138,7 +146,7 @@ std::string cpu_load() {
  * @return std::string HTTP response
  */
 std::string http_response(std::string text) {
-    std::string result = "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ";
+    std::string result = "HTTP/1.1 200 OK\r\nConnection: close\r\nContent-Type: text/plain\r\nContent-Length: ";
     result += std::to_string(text.size()) + "\r\n\r\n" + text;
 
     return result;
@@ -164,5 +172,5 @@ std::string http_analyse(std::string recv) {
         }
     }
 
-    return "HTTP/1.1 400 Bad Request\r\n\r\n";
+    return "HTTP/1.1 400 Bad Request\r\nConnection: close\r\n\r\n";
 }

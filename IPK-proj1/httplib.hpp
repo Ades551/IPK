@@ -9,6 +9,8 @@
 #ifndef __HTTP_LIB_H
 #define __HTTP_LIB_H
 
+#include <unistd.h>  // sleep
+
 #include <cmath>  // round
 #include <fstream>
 #include <string>

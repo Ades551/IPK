@@ -13,6 +13,13 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+/**
+ * @brief Prints error message to stderr
+ *
+ * @param error_num return code
+ * @param fmt format
+ * @param ... args
+ */
 void error_msg(int error_num, const char *fmt, ...);
 
 #endif  // __ERROR_H

@@ -30,6 +30,11 @@ int main(int argc, char **argv) {
         error_msg(1, "Invalid argument type!");
     }
 
+    int port = std::stoi(port_str);  // convert port to int
+
+    // https://www.sciencedirect.com/topics/computer-science/registered-port
+    if (port < 1024 || port > 65535) error_msg(1, "Invalid port number!");
+
     int server_fd, new_socket;
     struct sockaddr_in serv_addr, client_addr;
     socklen_t addrlen = sizeof(client_addr);
@@ -37,8 +42,6 @@ int main(int argc, char **argv) {
         0,
     };
     int option = 1;
-
-    int port = std::stoi(port_str);  // convert port to int
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
@@ -54,7 +57,7 @@ int main(int argc, char **argv) {
     // bind server
     if (bind(server_fd, (struct sockaddr *)&serv_addr, sizeof(serv_addr)) < 0) error_msg(1, "For server to bind!");
 
-    // losten to port
+    // listen to port
     if (listen(server_fd, 1) < 0) error_msg(1, "Listening to incomming connections!");
 
     while (true) {
@@ -78,6 +81,13 @@ int main(int argc, char **argv) {
     return 0;
 }
 
+/**
+ * @brief Checks if string is a number
+ *
+ * @param str std::string
+ * @return true is a number
+ * @return false is not a number
+ */
 bool str_is_number(std::string &str) {
     for (unsigned i = 0; i < str.length(); i++)
         if (!isdigit(str[i])) return false;

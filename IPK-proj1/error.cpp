@@ -1,7 +1,7 @@
 /**
- * @file error.hpp
+ * @file error.cpp
  * @author Adam Rajko (xrajko00@stud.fit.vutbr.cz)
- * @brief Header file for analysing HTTP requests
+ * @brief Implementation of error response
  * @date 2022-02-06
  *
  */
